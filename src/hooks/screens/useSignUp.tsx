@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import auth from '@react-native-firebase/auth';
 import firebaseErrorTranslate from '../../utils/firebaseErrorTranslate';
+import { IUserConfig } from "../../@types/IUserConfig";
+import firestore from '@react-native-firebase/firestore';
 
 const useSignUp = () => {
     const [email, setEmail] = useState('');
@@ -23,16 +25,36 @@ const useSignUp = () => {
             auth()
             .createUserWithEmailAndPassword(email, password)
             .then(res => {
-                console.log(res);
+                return createUserConfig(res.user.uid);
             })
             .catch((err) => {
                 Alert.alert('Entrar', firebaseErrorTranslate(err.code));
-                setIsLoading(false);
             })
         }catch(err){
             Alert.alert('Erro', err);
             setIsLoading(false);
-        }
+        }  
+    }
+
+    const createUserConfig = (uid) => {
+        const userConfig: IUserConfig = {
+            userId: uid,
+            linkedToOrganization: '',
+            ownOrganization: '',
+            ownOrganizationId: '',
+        } ;
+        
+        firestore()
+        .collection('userConfig')
+        .doc(auth().currentUser.uid)
+        .set(userConfig)
+        .then(res => {
+            setIsLoading(false);
+        })
+        .catch((err) => {
+            console.log(err)
+            setIsLoading(false);
+        })
     }
 
     return {

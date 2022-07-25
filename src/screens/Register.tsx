@@ -39,7 +39,7 @@ const Register = () => {
             </VStack>
             
             
-            <Input
+                <Input
                     placeholder="Nome ou Número do Patrimônio"
                     mt={4}
                     mb={4}

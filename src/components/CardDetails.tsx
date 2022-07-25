@@ -1,8 +1,8 @@
 import { Octicons } from '@expo/vector-icons';
-import { Box, HStack, Text, useTheme, VStack } from 'native-base';
+import { Box, HStack, Text, useTheme, VStack, IStyleProps } from 'native-base';
 import { ReactNode } from 'react';
 
-type Props = {
+type Props = IStyleProps & {
     title: string,
     description?: string,
     footer?: string,
@@ -15,12 +15,12 @@ const CardDetails = ({
     description,
     footer = null,
     icon,
-    children
+    children, ...rest
 }: Props) => {
     const { colors } = useTheme();
 
     return (
-        <VStack bg="gray.600" p={5} mt={5} rounded="sm">
+        <VStack bg="gray.600" p={5} mt={5} rounded="sm" {...rest}>
             <HStack alignItems="center" mb={4}>
                 <Octicons name={icon} color={colors.primary[700]} size={15}  />
                 <Text ml={2} color="gray.300" fontSize="sm" textTransform="uppercase">

@@ -4,11 +4,12 @@ type Props = IButtonProps & {
     title: string,
     isActive?: boolean,
     type: 'open' | 'closed',
+    origin?: boolean | 'my' | 'organization',
 }
 
-const Filter = ({ title, isActive = false, type, ...rest }: Props) => {
+const FilterType = ({ title, isActive = false, type, origin = false, ...rest }: Props) => {
     const { colors } = useTheme();
-    const colorType = colors.green[300];
+    const colorType = origin ? origin === 'my' ? colors.green[300] : colors.primary[500]: colors.green[300];
     
     return (
         <Button
@@ -31,4 +32,4 @@ const Filter = ({ title, isActive = false, type, ...rest }: Props) => {
     )
 }
 
-export default Filter
+export default FilterType

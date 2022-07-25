@@ -1,7 +1,7 @@
 import { Center, FlatList, Heading, HStack, IconButton, Text, useTheme, VStack } from "native-base";
 import Logo from '../assets/monkLogo2.svg'
 import { Octicons } from '@expo/vector-icons';
-import Filter from '../components/Filter';
+import FilterType from '../components/FilterType';
 import useHome from "../hooks/screens/useHome";
 import Order from "../components/Order";
 import Button from "../components/Button";
@@ -16,12 +16,23 @@ const Home = () => {
         setStatusSelected,
         orders,
         setOrders,
-        handleLogOut
+        handleLogOut,
+        originSelected,
+        setOriginSelected,
+        userConfig
     } = useHome();
 
     const navigation = useNavigation();
     const handleNewOrder = () => {
-        navigation.navigate('register');
+        const organization = userConfig.linkedToOrganization;
+
+        if(originSelected === 'organization'){
+            return navigation.navigate('register', { organization });
+        }
+        navigation.navigate('register', { organization: '' });
+    }
+    const handleConfigs = () => {
+        navigation.navigate('configs');
     }
     const handleOpenDetails = (orderId: string) => {
         navigation.navigate('details', { orderId });
@@ -39,10 +50,18 @@ const Home = () => {
                 px={6}
             >
                 <Logo />
-                <IconButton
-                    icon={<Octicons name="sign-out" color={colors.gray[300]} size={24} />}
-                    onPress={handleLogOut}
-                />
+                
+                <HStack>
+                    <IconButton
+                        mr={2}
+                        icon={<Octicons name="gear" color={colors.gray[300]} size={24} />}
+                        onPress={handleConfigs}
+                    />
+                    <IconButton
+                        icon={<Octicons name="sign-out" color={colors.gray[300]} size={24} />}
+                        onPress={handleLogOut}
+                    />
+                </HStack>
             </HStack>
 
             <VStack flex={1} px={6}>
@@ -58,24 +77,43 @@ const Home = () => {
                         {orders.length}
                     </Text>
                 </HStack>
-
-                <HStack space={2} mb={8}>
-                    <Filter
+        
+                <HStack space={2} mb={1}>
+                    <FilterType
                         type="open"
                         title="em andamento"
                         onPress={() => setStatusSelected('open')}
                         isActive={statusSelected === 'open'}
                     />
-                    <Filter
+                    <FilterType
                         type="closed"
                         title="finalizadas"
                         onPress={() => setStatusSelected('closed')}
                         isActive={statusSelected === 'closed'}
                     />
                 </HStack>
+                {userConfig.linkedToOrganization ?
+                    <HStack space={2}>
+                        <FilterType
+                            type="open"
+                            title="meus"
+                            origin={originSelected}
+                            onPress={() => setOriginSelected('my')}
+                            isActive={originSelected === 'my'}
+                        />
+                        <FilterType
+                            type="closed"
+                            title="organização"
+                            origin={originSelected}
+                            onPress={() => setOriginSelected('organization')}
+                            isActive={originSelected === 'organization'}
+                        />
+                    </HStack>
+                    : false
+                }
 
                 {isLoading ? <Loading /> : 
-                    <FlatList
+                    <FlatList  pt={8}
                         data={orders}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => <Order data={item} onPress={() => handleOpenDetails(item.id)} /> }
@@ -89,7 +127,7 @@ const Home = () => {
                                     mt={6}
                                     textAlign="center"
                                 >
-                                    Você ainda não possui {'\n'}
+                                    {originSelected === 'organization' ? 'Você não tem acesso a organização ou ela ' : 'Você '}ainda não possui {'\n'}
                                     solicitações {statusSelected === 'open' ? 'em andamento' : 'finalizadas'}
                                 </Text>
                             </Center>
@@ -98,9 +136,9 @@ const Home = () => {
                 }
 
                 <Button
-                    title="Nova solicitação"
-                    bg="green.700"
-                    _pressed={{ bg: "green.500" }}
+                    title={originSelected === 'organization' ? "Nova solicitação em [" + userConfig.linkedToOrganization + "]" : "Nova solicitação"} 
+                    bg={originSelected === 'organization' ? colors.primary[700] : "green.700"}
+                    _pressed={{bg: originSelected === 'organization' ? colors.primary[500] : "green.500"}}
                     onPress={handleNewOrder}
                 />
             </VStack>

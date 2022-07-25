@@ -3,8 +3,9 @@ export declare global {
         interface RootParamList {
             signup: undefined,
             home: undefined,
-            register: undefined,
-            details: { orderId: string };
+            register: { organization?: string | boolean},
+            details: { orderId: string },
+            configs: undefined,
         }
     }
 }
